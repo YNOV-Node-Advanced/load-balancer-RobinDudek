@@ -21,15 +21,27 @@ function randomPort() {
 //j'ai pas tout compris
 var server = net.createServer(function (connection) {
     var selectedPort = randomPort();
-    console.log('client connected');
+    console.log('Connected on ' + selectedPort);
+
+    const client = net.createConnection({ port: selectedPort });
+
     connection.on('end', () => {
+        console.log('connection stopped');
+    });
+    client.on('end', () => {
         console.log('client disconnected');
     });
     connection.on('data', () => {
-        console.log('Connected on ' + selectedPort);
-        client.write(data);
+        connection.write(data);
     });
-    connection.pipe(c);
+    client.on('error', () => {
+        connection.end();
+    });
+    connection.on('error', () => {
+        client.end();
+    });
+    client.pipe(connection);
+    connection.pipe(client);
 });
 server.on('error', (err) => {
     throw err;
